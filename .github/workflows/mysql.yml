@@ -3,7 +3,7 @@ name: 'Database workflow'
 on:
   push:
     branches:
-    - master
+    - main
 
 env:
   DB_NAME: test_db
