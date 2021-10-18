@@ -1,0 +1,52 @@
+name: Database scripts execution
+on:
+  push:
+    branches:
+    - main
+jobs:
+  getDbEnv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Database type
+        id: environment
+        run: |
+          dbType='mysql'
+          if [ "${{ github.event.client_payload.dbType }}" != "" ]; then
+              dbType=${{ github.event.client_payload.dbType }}
+          fi
+          echo "::set-output name=DBTYPE::${dbType}"
+          echo "Database Type : ${dbType}"
+    outputs:
+      dbType=: ${{ steps.environment.outputs.DBTYPE }}
+
+  runDB: 
+    name: 'Run MYSQL'
+    runs-on: ubuntu-latest
+
+    defaults:
+        run: 
+          shell: bash
+
+    steps:
+      - name: Setup MYSQL
+        if: dbType=='mysql'
+        uses: Azure/mysql@v1
+        with:
+            server-name: ${{ env.DB_SERVER_NAME }}
+            connection-string: ${{ env.DB_CONNECTION_STRING }}
+            username: ${{ env.DB_USERNAME }}
+            password: ${{ env.DB_PASSWORD }}
+            database: ${{ env.DB_DATABASE }}
+            sql-file: ${{ env.SQL_FILE }}
+            arguments: ${{ env.ARGUMENTS }} # optional
+
+      - name: Setup Azure PostgreSQL
+        if: dbType=='postgresql'
+        uses: Azure/postgresql@v1
+        with:
+            server-name: ${{ env.DB_SERVER_NAME }}
+            connection-string: ${{ env.DB_CONNECTION_STRING }}
+            plsql-file: ${{ env.PLSQL_FILE }}
+            arguments: ${{ env.ARGUMENTS }} # optional
+
+     
