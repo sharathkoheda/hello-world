@@ -22,5 +22,7 @@ jobs:
     steps:
       - name: Setup MYSQL
         run: |
-             sudo /etc/init.d/mysql start
+             sudo systemctl start mysql.service
+             sudo service mysql status
+             # sudo /etc/init.d/mysql start
                mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u ${{ env.DB_USER }} -p ${{ env.DB_PASSWORD }}
